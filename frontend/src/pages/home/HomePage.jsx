@@ -182,8 +182,7 @@ const HomePage = () => {
                   <Link to={`/questions/${question._id}`}>{question.title}</Link>
                 </h3>
                 <div className="question-excerpt">
-                  {question.content ? question.content.substring(0, 150) + '...' : 
-                   question.description ? question.description.substring(0, 150) + '...' : 
+                  {question.description ? question.description.substring(0, 150) + '...' : 
                    'No content available'}
                 </div>
                 

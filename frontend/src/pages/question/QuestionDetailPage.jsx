@@ -39,10 +39,25 @@ const QuestionDetailPage = () => {
       
       try {
         const questionResponse = await questionService.getQuestion(id);
-        setQuestion(questionResponse.data.question);
+        const questionData = questionResponse.data.question;
+        
+        // Process question data to include vote count and user vote status
+        const processedQuestion = {
+          ...questionData,
+          votes: questionData.voteCount || (questionData.upvotes?.length || 0) - (questionData.downvotes?.length || 0),
+          userVote: questionData.isUpvoted ? 'up' : (questionData.isDownvoted ? 'down' : null)
+        };
+        
+        setQuestion(processedQuestion);
         
         const answersResponse = await answerService.getAnswers(id, { sort: sortOrder });
-        setAnswers(answersResponse.data.answers);
+        const processedAnswers = answersResponse.data.answers.map(answer => ({
+          ...answer,
+          votes: answer.voteCount || (answer.upvotes?.length || 0) - (answer.downvotes?.length || 0),
+          userVote: answer.isUpvoted ? 'up' : (answer.isDownvoted ? 'down' : null)
+        }));
+        
+        setAnswers(processedAnswers);
       } catch (err) {
         setError('Error loading question. It might have been removed or you may not have permission to view it.');
         console.error('Error fetching question:', err);
@@ -64,10 +79,12 @@ const QuestionDetailPage = () => {
       const response = await questionService.voteQuestion(id, voteType);
       setQuestion({
         ...question,
-        votes: response.data.votes,
-        userVote: response.data.userVote
+        votes: response.data.upvotes - response.data.downvotes, // Calculate vote count
+        upvotes: response.data.upvotes,
+        downvotes: response.data.downvotes,
+        userVote: response.data.isUpvoted ? 'up' : (response.data.isDownvoted ? 'down' : null)
       });
-      toast.success(`Question ${voteType === 'up' ? 'upvoted' : 'downvoted'} successfully`);
+      toast.success(`Question ${voteType === 'upvote' ? 'upvoted' : 'downvoted'} successfully`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to vote');
     }
@@ -83,10 +100,14 @@ const QuestionDetailPage = () => {
       const response = await answerService.voteAnswer(answerId, voteType);
       setAnswers(answers.map(answer => 
         answer._id === answerId 
-          ? { ...answer, votes: response.data.votes, userVote: response.data.userVote } 
+          ? { 
+              ...answer, 
+              votes: response.data.voteCount,
+              userVote: response.data.upvoted ? 'up' : (response.data.downvoted ? 'down' : null)
+            } 
           : answer
       ));
-      toast.success(`Answer ${voteType === 'up' ? 'upvoted' : 'downvoted'} successfully`);
+      toast.success(`Answer ${voteType === 'upvote' ? 'upvoted' : 'downvoted'} successfully`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to vote');
     }
@@ -319,7 +340,7 @@ const QuestionDetailPage = () => {
         <div className="vote-controls">
           <button 
             className={`vote-btn ${question.userVote === 'up' ? 'voted' : ''}`}
-            onClick={() => handleVoteQuestion('up')}
+            onClick={() => handleVoteQuestion('upvote')}
             aria-label="Upvote"
           >
             <FaArrowUp />
@@ -327,7 +348,7 @@ const QuestionDetailPage = () => {
           <span className="vote-count">{question.votes}</span>
           <button 
             className={`vote-btn ${question.userVote === 'down' ? 'voted' : ''}`}
-            onClick={() => handleVoteQuestion('down')}
+            onClick={() => handleVoteQuestion('downvote')}
             aria-label="Downvote"
           >
             <FaArrowDown />
@@ -337,7 +358,7 @@ const QuestionDetailPage = () => {
         <div className="question-content">
           <div 
             className="content-body" 
-            dangerouslySetInnerHTML={{ __html: question.content }}
+            dangerouslySetInnerHTML={{ __html: question.description }}
           />
           
           <div className="tags-container">
@@ -405,7 +426,7 @@ const QuestionDetailPage = () => {
                 <div className="vote-controls">
                   <button 
                     className={`vote-btn ${answer.userVote === 'up' ? 'voted' : ''}`}
-                    onClick={() => handleVoteAnswer(answer._id, 'up')}
+                    onClick={() => handleVoteAnswer(answer._id, 'upvote')}
                     aria-label="Upvote"
                   >
                     <FaArrowUp />
@@ -413,7 +434,7 @@ const QuestionDetailPage = () => {
                   <span className="vote-count">{answer.votes}</span>
                   <button 
                     className={`vote-btn ${answer.userVote === 'down' ? 'voted' : ''}`}
-                    onClick={() => handleVoteAnswer(answer._id, 'down')}
+                    onClick={() => handleVoteAnswer(answer._id, 'downvote')}
                     aria-label="Downvote"
                   >
                     <FaArrowDown />
