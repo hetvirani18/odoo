@@ -1,8 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './RichTextEditor.css';
 
 const RichTextEditor = ({ value, onChange }) => {
   const [editorValue, setEditorValue] = useState(value || '');
+
+  // Update internal state when value prop changes
+  useEffect(() => {
+    setEditorValue(value || '');
+  }, [value]);
 
   const handleChange = (event) => {
     const content = event.target.value;

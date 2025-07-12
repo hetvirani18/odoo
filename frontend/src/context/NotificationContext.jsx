@@ -49,7 +49,7 @@ export const NotificationProvider = ({ children }) => {
       setNotifications([]);
       setUnreadCount(0);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Mark notification as read
   const markAsRead = async (id) => {
@@ -109,11 +109,35 @@ export const NotificationProvider = ({ children }) => {
 };
 
 export const useNotifications = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
+  try {
+    const context = useContext(NotificationContext);
+    if (!context) {
+      console.warn('useNotifications used outside NotificationProvider, returning fallback values');
+      // Return a fallback object with empty values to prevent errors
+      return {
+        notifications: [],
+        unreadCount: 0,
+        loading: false,
+        error: null,
+        fetchNotifications: () => {},
+        markAsRead: () => {},
+        markAllAsRead: () => {},
+      };
+    }
+    return context;
+  } catch (error) {
+    console.error('Error in useNotifications hook:', error);
+    // Return fallback values in case of any errors
+    return {
+      notifications: [],
+      unreadCount: 0,
+      loading: false,
+      error: null,
+      fetchNotifications: () => {},
+      markAsRead: () => {},
+      markAllAsRead: () => {},
+    };
   }
-  return context;
 };
 
 export default NotificationContext;

@@ -40,7 +40,6 @@ const AskQuestionPage = () => {
       setAiLoading(false);
     }
   };
-
   // Handle form submission
   const onSubmit = async (data) => {
     if (!isAuthenticated) {
@@ -58,21 +57,27 @@ const AskQuestionPage = () => {
       toast.error('Question content cannot be empty');
       return;
     }
-    
+
     const questionData = {
       ...data,
-      content,
-      tags
+      description: content,
+      tags: tags.map(tag => typeof tag === 'string' ? tag : tag.name)
     };
-    
+
+    console.log('Submitting question data:', questionData);
+
     setLoading(true);
     try {
       const response = await questionService.createQuestion(questionData);
+      console.log('Question created successfully:', response.data);
       toast.success('Question posted successfully!');
-      navigate(`/questions/${response.data.question._id}`);
+      
+      // Instead of navigating directly, use window.location to perform a full page reload
+      // This helps avoid any state-related issues
+      window.location.href = `/questions/${response.data.question._id}`;
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to post question');
       console.error('Question submission error:', err);
+      toast.error(err.response?.data?.message || 'Failed to post question');
     } finally {
       setLoading(false);
     }
@@ -148,7 +153,7 @@ const AskQuestionPage = () => {
             </p>
             <TagInput 
               selectedTags={tags} 
-              setSelectedTags={setTags} 
+              onChange={setTags} 
               maxTags={5} 
             />
             {tags.length === 0 && <span className="error-message">At least one tag is required</span>}

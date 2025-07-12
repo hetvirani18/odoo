@@ -182,20 +182,28 @@ const HomePage = () => {
                   <Link to={`/questions/${question._id}`}>{question.title}</Link>
                 </h3>
                 <div className="question-excerpt">
-                  {question.content.substring(0, 150)}...
+                  {question.content ? question.content.substring(0, 150) + '...' : 
+                   question.description ? question.description.substring(0, 150) + '...' : 
+                   'No content available'}
                 </div>
                 
                 <div className="question-meta">
                   <div className="question-tags">
-                    {question.tags.map(tag => (
-                      <Link
-                        key={tag}
-                        to={`/?tag=${tag}`}
-                        className="question-tag"
-                      >
-                        {tag}
-                      </Link>
-                    ))}
+                    {question.tags && question.tags.length > 0 ? question.tags.map(tag => {
+                      // Handle both string tags and object tags
+                      const tagName = typeof tag === 'string' ? tag : tag.name;
+                      const tagId = typeof tag === 'string' ? tag : tag._id || tag.name;
+                      
+                      return (
+                        <Link
+                          key={tagId}
+                          to={`/?tag=${tagName}`}
+                          className="question-tag"
+                        >
+                          {tagName}
+                        </Link>
+                      );
+                    }) : <span className="no-tags">No tags</span>}
                   </div>
                   
                   <div className="question-author">
