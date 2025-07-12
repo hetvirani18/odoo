@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch, FaUser, FaSignOutAlt, FaBookmark, FaQuestion } from 'react-icons/fa';
+import { FaSearch, FaUser, FaSignOutAlt, FaQuestion, FaHome } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
@@ -54,6 +54,11 @@ export const Navbar = () => {
         </form>
 
         <div className="nav-actions">
+          <Link to="/" className="nav-home-btn">
+            <FaHome className="home-icon" />
+            Home
+          </Link>
+          
           {isAuthenticated ? (
             <>
               <Link to="/ask" className="ask-question-btn">
@@ -74,10 +79,6 @@ export const Navbar = () => {
                     <Link to="/profile" className="dropdown-item">
                       <FaUser className="dropdown-icon" />
                       Profile
-                    </Link>
-                    <Link to="/bookmarks" className="dropdown-item">
-                      <FaBookmark className="dropdown-icon" />
-                      Bookmarks
                     </Link>
                     <div className="dropdown-divider"></div>
                     <button 

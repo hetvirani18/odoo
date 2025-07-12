@@ -30,8 +30,11 @@ const AskQuestionPage = () => {
     
     setAiLoading(true);
     try {
-      const response = await aiService.generateDescription({ title });
-      setContent(response.data.content);
+      const response = await aiService.generateDescription({ 
+        title, 
+        tags: tags.length > 0 ? tags : ['general'] 
+      });
+      setContent(response.data.description);
       toast.success('AI-generated content created! Feel free to edit it.');
     } catch (err) {
       toast.error('Failed to generate AI content. Please try again or write your own.');

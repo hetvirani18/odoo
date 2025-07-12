@@ -245,7 +245,48 @@
   background-color: #1d4ed8;
 }
 
+/* Home button styles */
+.nav-home-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #f8fafc;
+  color: #475569;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  margin-right: 1rem;
+}
+
+.nav-home-btn:hover {
+  background-color: #e2e8f0;
+  color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.nav-home-btn:active {
+  transform: translateY(0);
+}
+
+.home-icon {
+  font-size: 1rem;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
+  .nav-home-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .nav-home-btn .home-icon {
+    font-size: 0.9rem;
+  }
+  
   .search-form {
     margin: 0 1rem;
     max-width: none;

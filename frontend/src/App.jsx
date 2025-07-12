@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import QuestionDetailPage from './pages/question/QuestionDetailPage';
 import AskQuestionPage from './pages/question/AskQuestionPage';
+import ProfilePage from './pages/profile/ProfilePage';
 import NotFoundPage from './pages/common/NotFoundPage';
 import PrivateRoute from './components/common/PrivateRoute';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -33,6 +34,14 @@ function App() {
                       element={
                         <PrivateRoute>
                           <AskQuestionPage />
+                        </PrivateRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/profile" 
+                      element={
+                        <PrivateRoute>
+                          <ProfilePage />
                         </PrivateRoute>
                       } 
                     />
