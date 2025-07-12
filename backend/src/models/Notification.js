@@ -14,7 +14,13 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['question_answer', 'answer_comment', 'mention', 'answer_accepted'],
+      enum: [
+        'question_answer',    // When someone answers a question
+        'answer_comment',     // When someone comments on an answer
+        'mention',            // When someone mentions a user
+        'answer_accepted',    // When an answer is accepted
+        'question_upvote'     // When someone upvotes a question
+      ],
       required: true,
     },
     question: {

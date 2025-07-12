@@ -70,13 +70,24 @@ const QuestionDetailPage = () => {
   }, [id, sortOrder]);
   
   const handleVoteQuestion = async (voteType) => {
+    console.log('Vote attempt:', { 
+      isAuthenticated, 
+      currentUser, 
+      token: localStorage.getItem('token'),
+      refreshToken: localStorage.getItem('refreshToken')
+    });
+    
     if (!isAuthenticated) {
       toast.error('Please login to vote');
       return;
     }
     
+    console.log('Voting on question:', { id, voteType, isAuthenticated, currentUser });
+    
     try {
       const response = await questionService.voteQuestion(id, voteType);
+      console.log('Vote response:', response.data);
+      
       setQuestion({
         ...question,
         votes: response.data.upvotes - response.data.downvotes, // Calculate vote count
@@ -86,7 +97,17 @@ const QuestionDetailPage = () => {
       });
       toast.success(`Question ${voteType === 'upvote' ? 'upvoted' : 'downvoted'} successfully`);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to vote');
+      console.error('Error voting on question:', err);
+      console.error('Error response:', err.response?.data);
+      
+      // Check if it's an authentication error
+      if (err.response?.status === 401) {
+        toast.error('Your session has expired. Please login again.');
+        // You might want to redirect to login page here
+        // navigate('/login');
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to vote');
+      }
     }
   };
   
@@ -109,7 +130,16 @@ const QuestionDetailPage = () => {
       ));
       toast.success(`Answer ${voteType === 'upvote' ? 'upvoted' : 'downvoted'} successfully`);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to vote');
+      console.error('Error voting on answer:', err);
+      
+      // Check if it's an authentication error
+      if (err.response?.status === 401) {
+        toast.error('Your session has expired. Please login again.');
+        // You might want to redirect to login page here
+        // navigate('/login');
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to vote');
+      }
     }
   };
   
