@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './RichTextEditor.css';
 
-const RichTextEditor = ({ value, onChange }) => {
+const RichTextEditor = ({ value, onChange, disabled }) => {
   const [editorValue, setEditorValue] = useState(value || '');
 
   // Update internal state when value prop changes
@@ -13,7 +13,8 @@ const RichTextEditor = ({ value, onChange }) => {
     const content = event.target.value;
     setEditorValue(content);
     if (onChange) {
-      onChange(content);
+      // Ensure we're passing a valid string to the parent component
+      onChange(content || '');
     }
   };
 
@@ -25,6 +26,7 @@ const RichTextEditor = ({ value, onChange }) => {
         placeholder="Describe your question in detail... You can use Markdown formatting."
         rows="10"
         className="editor-textarea"
+        disabled={disabled}
         style={{
           width: '100%',
           minHeight: '200px',
@@ -34,7 +36,9 @@ const RichTextEditor = ({ value, onChange }) => {
           fontSize: '14px',
           fontFamily: 'Arial, sans-serif',
           resize: 'vertical',
-          outline: 'none'
+          outline: 'none',
+          opacity: disabled ? '0.7' : '1',
+          backgroundColor: disabled ? '#f9f9f9' : '#fff'
         }}
       />
       <div className="editor-help">

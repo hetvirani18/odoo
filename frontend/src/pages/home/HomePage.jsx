@@ -48,9 +48,9 @@ const HomePage = () => {
         }
         
         if (selectedTags.length > 0) {
-          params.tags = selectedTags.join(',');
+          params.tag = selectedTags.join(',');
         } else if (tagFilter) {
-          params.tags = tagFilter;
+          params.tag = tagFilter;
         }
         
         const response = await questionService.getQuestions(params);
@@ -130,14 +130,14 @@ const HomePage = () => {
             <FaSortAmountDown /> Newest
           </button>
           <button
-            className={`sort-btn ${sortOrder === 'votes' ? 'active' : ''}`}
-            onClick={() => handleSortChange('votes')}
+            className={`sort-btn ${sortOrder === 'most_voted' ? 'active' : ''}`}
+            onClick={() => handleSortChange('most_voted')}
           >
             <FaSortAmountUp /> Most Votes
           </button>
           <button
-            className={`sort-btn ${sortOrder === 'answers' ? 'active' : ''}`}
-            onClick={() => handleSortChange('answers')}
+            className={`sort-btn ${sortOrder === 'most_answered' ? 'active' : ''}`}
+            onClick={() => handleSortChange('most_answered')}
           >
             <FaSortAmountDown /> Most Answers
           </button>
@@ -164,7 +164,7 @@ const HomePage = () => {
             <div key={question._id} className="question-card">
               <div className="question-stats">
                 <div className="stat">
-                  <span className="stat-value">{question.votes}</span>
+                  <span className="stat-value">{question.voteCount || (question.upvotes?.length - question.downvotes?.length) || 0}</span>
                   <span className="stat-label">votes</span>
                 </div>
                 <div className="stat">

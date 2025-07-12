@@ -1,16 +1,43 @@
 :root {
-  --primary-color: #0a95ff;
-  --primary-hover: #0074cc;
-  --secondary-color: #f48024;
-  --text-color: #242729;
-  --text-muted: #6a737c;
-  --border-color: #e4e6e8;
-  --background-color: #f8f9f9;
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --secondary-color: #3b82f6;
+  --text-color: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --background-color: #f8fafc;
   --background-light: #ffffff;
-  --success-color: #48bb78;
-  --error-color: #e53e3e;
-  --warning-color: #ecc94b;
-  --info-color: #4299e1;
+  --success-color: #22c55e;
+  --error-color: #dc2626;
+  --warning-color: #f59e0b;
+  --info-color: #3b82f6;
+  
+  /* Additional colors */
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+  
+  --blue-50: #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  
+  --green-50: #f0fdf4;
+  --green-100: #dcfce7;
+  --green-500: #22c55e;
+  
+  --red-50: #fef2f2;
+  --red-100: #fee2e2;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
 }
 
 * {
@@ -20,7 +47,7 @@
 }
 
 html, body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 16px;
@@ -28,6 +55,11 @@ html, body {
   color: var(--text-color);
   background-color: var(--background-color);
   height: 100%;
+  background-image: 
+    radial-gradient(var(--gray-200) 1px, transparent 1px),
+    radial-gradient(var(--gray-200) 1px, var(--background-color) 1px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
 }
 
 #root {
@@ -77,19 +109,50 @@ button {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--gray-100);
   border-radius: 4px;
 }
 
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 6px;
+  border: 2px solid var(--gray-100);
+}
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: var(--gray-400);
+}
+
+/* Add modern card styling */
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Better form elements */
+input, select, textarea, .ql-container {
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  width: 100%;
+}
+
+input:focus, select:focus, textarea:focus, .ql-container:focus {
+  outline: none;
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px var(--blue-100);
 }

@@ -86,12 +86,40 @@ export const questionService = {
   updateQuestion: (id, questionData) => api.put(`/questions/${id}`, questionData),
   deleteQuestion: (id) => api.delete(`/questions/${id}`),
   voteQuestion: (id, voteType) => api.post(`/questions/${id}/vote`, { voteType }),
-  bookmarkQuestion: (id) => api.post(`/questions/${id}/bookmark`),
+  bookmarkQuestion: (id) => {
+    // Check authentication before making the request
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      return Promise.reject({ message: 'Authentication required' });
+    }
+    
+    return api.post(`/questions/${id}/bookmark`);
+  },
 };
 
 // Answer services
 export const answerService = {
-  createAnswer: (questionId, content) => api.post(`/answers/question/${questionId}`, { content }),
+  createAnswer: (questionId, content) => {
+    // Validate content
+    if (!content || typeof content !== 'string') {
+      return Promise.reject({ message: 'Answer content is required' });
+    }
+    
+    const sanitizedContent = content.trim();
+    
+    // Check minimum length requirement
+    if (sanitizedContent.length < 20) {
+      return Promise.reject({ message: 'Answer must be at least 20 characters long' });
+    }
+    
+    // Check authentication before making the request
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      return Promise.reject({ message: 'Authentication required' });
+    }
+    
+    return api.post(`/answers/question/${questionId}`, { content: sanitizedContent });
+  },
   getAnswers: (questionId, params) => api.get(`/answers/question/${questionId}`, { params }),
   updateAnswer: (id, content) => api.put(`/answers/${id}`, { content }),
   deleteAnswer: (id) => api.delete(`/answers/${id}`),

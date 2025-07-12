@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import toast from '../../utils/toast';
 import {
   FaArrowUp,
   FaArrowDown,
@@ -9,7 +9,9 @@ import {
   FaRegBookmark,
   FaEdit,
   FaTrash,
-  FaReply
+  FaReply,
+  FaChevronDown,
+  FaChevronUp
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { questionService, answerService } from '../../services/api';
@@ -25,8 +27,10 @@ const QuestionDetailPage = () => {
   const [answers, setAnswers] = useState([]);
   const [newAnswer, setNewAnswer] = useState('');
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [sortOrder, setSortOrder] = useState('votes'); // 'votes', 'newest', 'oldest'
+  const [showAllAnswers, setShowAllAnswers] = useState(false);
   
   useEffect(() => {
     const fetchQuestionAndAnswers = async () => {
@@ -95,6 +99,7 @@ const QuestionDetailPage = () => {
     }
     
     try {
+      setLoading(true);
       const response = await questionService.bookmarkQuestion(id);
       setQuestion({
         ...question,
@@ -105,7 +110,14 @@ const QuestionDetailPage = () => {
         : 'Bookmark removed successfully'
       );
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to bookmark');
+      console.error('Bookmark error:', err);
+      if (err.message === 'Authentication required') {
+        toast.error('Please login to bookmark this question');
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to bookmark');
+      }
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -148,18 +160,46 @@ const QuestionDetailPage = () => {
       return;
     }
     
-    if (!newAnswer.trim()) {
+    if (!newAnswer || !newAnswer.trim()) {
       toast.error('Answer cannot be empty');
       return;
     }
     
+    const sanitizedContent = newAnswer.trim();
+    if (sanitizedContent.length < 20) {
+      toast.error('Answer must be at least 20 characters long');
+      return;
+    }
+    
     try {
-      const response = await answerService.createAnswer(id, newAnswer);
-      setAnswers([...answers, response.data.answer]);
-      setNewAnswer('');
-      toast.success('Answer submitted successfully');
+      setSubmitting(true);
+      
+      const response = await answerService.createAnswer(id, sanitizedContent);
+      
+      // Add the new answer to the state with proper structure
+      if (response.data && response.data.answer) {
+        const newAnswerObj = response.data.answer;
+        setAnswers([...answers, newAnswerObj]);
+        setNewAnswer('');
+        toast.success('Answer submitted successfully');
+        
+        // If showing only top answers, switch to showing all answers
+        if (!showAllAnswers) {
+          setShowAllAnswers(true);
+          toast.info('Showing all answers including your new answer');
+        }
+      } else {
+        throw new Error('Invalid response format');
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to submit answer');
+      console.error('Error submitting answer:', err);
+      if (err.message === 'Authentication required') {
+        toast.error('Please login to submit an answer');
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to submit answer');
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
   
@@ -258,9 +298,18 @@ const QuestionDetailPage = () => {
             <button 
               className={`action-btn bookmark ${question.isBookmarked ? 'active' : ''}`}
               onClick={handleBookmarkQuestion}
+              disabled={loading}
             >
-              {question.isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
-              {question.isBookmarked ? 'Bookmarked' : 'Bookmark'}
+              {loading ? (
+                <>
+                  <span className="spinner"></span> Processing...
+                </>
+              ) : (
+                <>
+                  {question.isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
+                  {question.isBookmarked ? 'Bookmarked' : 'Bookmark'}
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -292,11 +341,17 @@ const QuestionDetailPage = () => {
           />
           
           <div className="tags-container">
-            {question.tags.map(tag => (
-              <Link key={tag} to={`/?tag=${tag}`} className="tag">
-                {tag}
-              </Link>
-            ))}
+            {question.tags.map(tag => {
+              // Handle both string tags and object tags
+              const tagName = typeof tag === 'string' ? tag : tag.name;
+              const tagId = typeof tag === 'string' ? tag : tag._id || tag.name;
+              
+              return (
+                <Link key={tagId} to={`/?tag=${tagName}`} className="tag">
+                  {tagName}
+                </Link>
+              );
+            })}
           </div>
           
           <div className="author-info">
@@ -341,7 +396,8 @@ const QuestionDetailPage = () => {
           </div>
         ) : (
           <div className="answers-list">
-            {answers.map(answer => (
+            {/* Show either just the top answer or all answers based on state */}
+            {(showAllAnswers ? answers : answers.slice(0, 1)).map(answer => (
               <div 
                 key={answer._id} 
                 className={`answer-container ${answer.isAccepted ? 'accepted' : ''}`}
@@ -417,6 +473,24 @@ const QuestionDetailPage = () => {
                 </div>
               </div>
             ))}
+
+            {/* Toggle button to show/hide all answers */}
+            {answers.length > 1 && (
+              <button 
+                className="toggle-answers-btn" 
+                onClick={() => setShowAllAnswers(!showAllAnswers)}
+              >
+                {showAllAnswers ? (
+                  <>
+                    <FaChevronUp /> Show Less Answers
+                  </>
+                ) : (
+                  <>
+                    <FaChevronDown /> Show All {answers.length} Answers
+                  </>
+                )}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -426,10 +500,22 @@ const QuestionDetailPage = () => {
         
         {isAuthenticated ? (
           <form onSubmit={handleSubmitAnswer}>
-            <RichTextEditor value={newAnswer} onChange={setNewAnswer} />
+            <RichTextEditor value={newAnswer} onChange={setNewAnswer} disabled={submitting} />
             
-            <button type="submit" className="submit-answer-btn">
-              <FaReply /> Post Your Answer
+            <button 
+              type="submit" 
+              className="submit-answer-btn" 
+              disabled={submitting || !newAnswer.trim()}
+            >
+              {submitting ? (
+                <>
+                  <span className="spinner"></span> Submitting...
+                </>
+              ) : (
+                <>
+                  <FaReply /> Post Your Answer
+                </>
+              )}
             </button>
           </form>
         ) : (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import toast from '../utils/toast';
 import { authService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import OtpInput from 'react-otp-input';

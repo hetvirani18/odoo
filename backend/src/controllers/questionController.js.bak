@@ -299,34 +299,15 @@ exports.getQuestion = async (req, res) => {
 
     // Convert to POJO to add custom fields
     const questionObj = question.toObject();
-
-    // Add isUpvoted and isDownvoted flags if user is logged in
+    
+    // Add isBookmarked field for authenticated users
     if (req.user) {
-      questionObj.isUpvoted = question.upvotes.some(
-        (id) => id.toString() === req.user.id
-      );
-      questionObj.isDownvoted = question.downvotes.some(
-        (id) => id.toString() === req.user.id
-      );
-
-      // Check if user has bookmarked this question
       const user = await User.findById(req.user.id);
       questionObj.isBookmarked = user.bookmarks.some(
-        (id) => id.toString() === question._id.toString()
+        bookmarkId => bookmarkId.toString() === question._id.toString()
       );
-
-      // Add isUpvoted and isDownvoted flags to answers
-      if (questionObj.answers) {
-        questionObj.answers = questionObj.answers.map((answer) => {
-          answer.isUpvoted = answer.upvotes?.some(
-            (id) => id.toString() === req.user.id
-          );
-          answer.isDownvoted = answer.downvotes?.some(
-            (id) => id.toString() === req.user.id
-          );
-          return answer;
-        });
-      }
+    } else {
+      questionObj.isBookmarked = false;
     }
 
     res.status(200).json({
@@ -334,10 +315,10 @@ exports.getQuestion = async (req, res) => {
       question: questionObj,
     });
   } catch (error) {
-    console.error('Error getting question:', error);
+    console.error('Error fetching question:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Error retrieving question',
+      message: error.message || 'Error retrieving question details',
     });
   }
 };
@@ -345,8 +326,7 @@ exports.getQuestion = async (req, res) => {
 // Update a question
 exports.updateQuestion = async (req, res) => {
   try {
-    const { title, description, tags } = req.body;
-    const question = await Question.findById(req.params.id);
+    let question = await Question.findById(req.params.id);
 
     if (!question) {
       return res.status(404).json({
@@ -355,20 +335,27 @@ exports.updateQuestion = async (req, res) => {
       });
     }
 
-    // Check if user is the author
-    if (question.author.toString() !== req.user.id) {
+    // Check if user is authorized
+    if (question.author.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'You are not authorized to update this question',
+        message: 'Not authorized to update this question',
       });
     }
 
+    const { title, description, tags } = req.body;
+
     // Process tags if provided
-    let tagIds = question.tags;
     if (tags && tags.length > 0) {
-      tagIds = [];
+      // Remove question from old tags
+      await Tag.updateMany(
+        { _id: { $in: question.tags } },
+        { $pull: { questions: question._id } }
+      );
+
+      // Process new tags
+      const tagIds = [];
       for (const tagName of tags) {
-        // Find tag or create if doesn't exist
         let tag = await Tag.findOne({ name: tagName.toLowerCase() });
         if (!tag) {
           tag = await Tag.create({ name: tagName.toLowerCase() });
@@ -376,38 +363,36 @@ exports.updateQuestion = async (req, res) => {
         tagIds.push(tag._id);
       }
 
-      // Update tags with new question
-      await Tag.updateMany(
-        { questions: question._id },
-        { $pull: { questions: question._id } }
-      );
+      // Update tags with question
       await Tag.updateMany(
         { _id: { $in: tagIds } },
         { $addToSet: { questions: question._id } }
       );
+
+      // Update question tags
+      question.tags = tagIds;
     }
 
-    // Update question
-    question.title = title || question.title;
-    question.description = description || question.description;
-    question.tags = tagIds;
+    // Update fields
+    if (title) question.title = title;
+    if (description) question.description = description;
 
+    // Save question
     await question.save();
 
-    // Populate author and tags for response
-    const populatedQuestion = await Question.findById(question._id)
+    // Populate for response
+    const updatedQuestion = await Question.findById(question._id)
       .populate('author', 'username avatar')
       .populate('tags', 'name');
 
     res.status(200).json({
       success: true,
-      question: populatedQuestion,
+      question: updatedQuestion,
     });
   } catch (error) {
-    console.error('Error updating question:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Error updating question',
+      message: error.message,
     });
   }
 };
@@ -424,41 +409,58 @@ exports.deleteQuestion = async (req, res) => {
       });
     }
 
-    // Check if user is the author or admin
+    // Check if user is authorized
     if (question.author.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'You are not authorized to delete this question',
+        message: 'Not authorized to delete this question',
       });
     }
 
     // Remove question from tags
     await Tag.updateMany(
-      { questions: question._id },
+      { _id: { $in: question.tags } },
       { $pull: { questions: question._id } }
     );
 
+    // Remove question from user bookmarks
+    await User.updateMany(
+      { bookmarks: question._id },
+      { $pull: { bookmarks: question._id } }
+    );
+
+    // Delete related notifications
+    await Notification.deleteMany({ question: question._id });
+
     // Delete question
-    await Question.findByIdAndDelete(req.params.id);
+    await question.remove();
 
     res.status(200).json({
       success: true,
       message: 'Question deleted successfully',
     });
   } catch (error) {
-    console.error('Error deleting question:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Error deleting question',
+      message: error.message,
     });
   }
 };
 
-// Vote on a question (upvote or downvote)
+// Vote on a question
 exports.voteQuestion = async (req, res) => {
   try {
+    const { id } = req.params;
     const { voteType } = req.body;
-    const question = await Question.findById(req.params.id);
+
+    if (!['upvote', 'downvote'].includes(voteType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid vote type',
+      });
+    }
+
+    const question = await Question.findById(id);
 
     if (!question) {
       return res.status(404).json({
@@ -467,7 +469,7 @@ exports.voteQuestion = async (req, res) => {
       });
     }
 
-    // Check if user is trying to vote on their own question
+    // Check if user is the author
     if (question.author.toString() === req.user.id) {
       return res.status(400).json({
         success: false,
@@ -475,79 +477,67 @@ exports.voteQuestion = async (req, res) => {
       });
     }
 
-    // Handle upvote
-    const isUpvoted = question.upvotes.includes(req.user.id);
-    const isDownvoted = question.downvotes.includes(req.user.id);
+    const upvoted = question.upvotes.includes(req.user.id);
+    const downvoted = question.downvotes.includes(req.user.id);
 
+    // Handle upvote
     if (voteType === 'upvote') {
-      if (isUpvoted) {
-        // Remove upvote (toggle off)
+      if (upvoted) {
+        // Remove upvote if already upvoted
         question.upvotes = question.upvotes.filter(
           (id) => id.toString() !== req.user.id
         );
       } else {
         // Add upvote and remove downvote if exists
         question.upvotes.push(req.user.id);
-        if (isDownvoted) {
-          question.downvotes = question.downvotes.filter(
-            (id) => id.toString() !== req.user.id
-          );
-        }
+        question.downvotes = question.downvotes.filter(
+          (id) => id.toString() !== req.user.id
+        );
 
-        // Create notification for question author if it's a new upvote
-        if (question.author.toString() !== req.user.id) {
-          await Notification.create({
-            recipient: question.author,
-            sender: req.user.id,
-            type: 'question_upvote',
-            question: question._id,
+        // Increment author reputation if not previously upvoted
+        if (!upvoted) {
+          await User.findByIdAndUpdate(question.author, {
+            $inc: { reputation: 10 },
           });
         }
       }
-    } else if (voteType === 'downvote') {
-      if (isDownvoted) {
-        // Remove downvote (toggle off)
+    }
+
+    // Handle downvote
+    if (voteType === 'downvote') {
+      if (downvoted) {
+        // Remove downvote if already downvoted
         question.downvotes = question.downvotes.filter(
           (id) => id.toString() !== req.user.id
         );
       } else {
         // Add downvote and remove upvote if exists
         question.downvotes.push(req.user.id);
-        if (isUpvoted) {
-          question.upvotes = question.upvotes.filter(
-            (id) => id.toString() !== req.user.id
-          );
+        question.upvotes = question.upvotes.filter(
+          (id) => id.toString() !== req.user.id
+        );
+
+        // Decrement author reputation if not previously downvoted
+        if (!downvoted) {
+          await User.findByIdAndUpdate(question.author, {
+            $inc: { reputation: -2 },
+          });
         }
       }
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid vote type',
-      });
     }
 
     await question.save();
 
-    // Update user reputation
-    const questionAuthor = await User.findById(question.author);
-    const voteValue = voteType === 'upvote' ? 10 : -2;
-    const reputationChange = isUpvoted || isDownvoted ? 0 : voteValue;
-    
-    questionAuthor.reputation += reputationChange;
-    await questionAuthor.save();
-
     res.status(200).json({
       success: true,
-      isUpvoted: question.upvotes.includes(req.user.id),
-      isDownvoted: question.downvotes.includes(req.user.id),
-      upvotes: question.upvotes.length,
-      downvotes: question.downvotes.length,
+      voteCount: question.upvotes.length - question.downvotes.length,
+      upvoted: question.upvotes.includes(req.user.id),
+      downvoted: question.downvotes.includes(req.user.id),
     });
   } catch (error) {
-    console.error('Error voting on question:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Server error voting on question',
+      message: error.message,
     });
   }
 };
@@ -556,6 +546,7 @@ exports.voteQuestion = async (req, res) => {
 exports.bookmarkQuestion = async (req, res) => {
   try {
     const question = await Question.findById(req.params.id);
+
     if (!question) {
       return res.status(404).json({
         success: false,
@@ -563,9 +554,26 @@ exports.bookmarkQuestion = async (req, res) => {
       });
     }
 
-    // Get user and check if question is already bookmarked
+    // Ensure user exists
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
+    }
+
     const user = await User.findById(req.user.id);
-    const isBookmarked = user.bookmarks.includes(question._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // Check if already bookmarked - ensure we're comparing strings, not ObjectIds
+    const isBookmarked = user.bookmarks.some(bookmarkId => 
+      bookmarkId.toString() === question._id.toString()
+    );
 
     if (isBookmarked) {
       // Remove bookmark

@@ -68,12 +68,14 @@ const questionSchema = new mongoose.Schema(
 
 // Virtual for vote count
 questionSchema.virtual('voteCount').get(function () {
-  return this.upvotes.length - this.downvotes.length;
+  const upvotesCount = this.upvotes ? this.upvotes.length : 0;
+  const downvotesCount = this.downvotes ? this.downvotes.length : 0;
+  return upvotesCount - downvotesCount;
 });
 
 // Virtual for answer count
 questionSchema.virtual('answerCount').get(function () {
-  return this.answers.length;
+  return this.answers ? this.answers.length : 0;
 });
 
 const Question = mongoose.model('Question', questionSchema);

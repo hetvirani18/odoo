@@ -9,10 +9,34 @@ exports.createAnswer = async (req, res) => {
     const { content } = req.body;
     const { questionId } = req.params;
 
+    // Enhanced logging to debug request
+    console.log('Create answer request received:', { 
+      questionId, 
+      content: content ? `${content.slice(0, 20)}... (${content.length} chars)` : 'undefined/null',
+      user: req.user ? req.user.id : 'No user'
+    });
+
+    // Basic content validation
     if (!content) {
       return res.status(400).json({
         success: false,
         message: 'Please provide answer content',
+      });
+    }
+
+    // Validate content type
+    if (typeof content !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Content must be a string',
+      });
+    }
+
+    // Validate content length
+    if (content.trim().length < 20) {
+      return res.status(400).json({
+        success: false,
+        message: 'Answer must be at least 20 characters long',
       });
     }
 
@@ -25,9 +49,17 @@ exports.createAnswer = async (req, res) => {
       });
     }
 
+    // Ensure user exists
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
+    }
+
     // Create answer
     const answer = await Answer.create({
-      content,
+      content: content.trim(),
       author: req.user.id,
       question: questionId,
     });
@@ -53,14 +85,35 @@ exports.createAnswer = async (req, res) => {
       'username avatar reputation'
     );
 
+    console.log('Answer created successfully:', { answerId: answer._id });
+
     res.status(201).json({
       success: true,
       answer: populatedAnswer,
     });
   } catch (error) {
+    console.error('Error creating answer:', error);
+    
+    // More specific error messages based on the error type
+    if (error.name === 'ValidationError') {
+      // Handle Mongoose validation errors
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: messages
+      });
+    } else if (error.name === 'CastError') {
+      // Handle invalid ObjectId errors
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid question ID format'
+      });
+    }
+    
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || 'Server error creating answer',
     });
   }
 };

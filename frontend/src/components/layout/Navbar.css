@@ -1,18 +1,22 @@
 .navbar {
   background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  position: sticky;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
-  padding: 0.8rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 .nav-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -20,21 +24,24 @@
 .nav-logo {
   display: flex;
   align-items: center;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 800;
   color: #2563eb;
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: all 0.3s ease;
+  letter-spacing: -0.02em;
 }
 
 .nav-logo:hover {
   color: #1d4ed8;
+  transform: scale(1.05);
 }
 
 .logo-icon {
-  font-size: 1.8rem;
+  font-size: 2rem;
   margin-right: 0.5rem;
   color: #2563eb;
+  filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.2));
 }
 
 .search-form {
@@ -46,35 +53,43 @@
 .search-container {
   position: relative;
   width: 100%;
+  transition: all 0.3s ease;
+}
+
+.search-container:focus-within {
+  transform: translateY(-1px);
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: #64748b;
+  font-size: 1.1rem;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  padding: 0.85rem 1rem 0.85rem 2.8rem;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.95rem;
+  border-radius: 10px;
+  font-size: 1rem;
   background-color: #f8fafc;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .search-input:focus {
   outline: none;
   border-color: #2563eb;
   background-color: white;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 .search-input::placeholder {
   color: #94a3b8;
+  font-weight: 400;
 }
 
 .nav-actions {
@@ -88,15 +103,16 @@
   justify-content: center;
   background-color: #2563eb;
   color: white;
-  padding: 0.65rem 1.25rem;
-  border-radius: 6px;
+  padding: 0.8rem 1.4rem;
+  border-radius: 8px;
   font-weight: 600;
   font-size: 0.95rem;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   margin-right: 1rem;
   border: none;
   cursor: pointer;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.25);
 }
 
 .ask-question-btn:hover {

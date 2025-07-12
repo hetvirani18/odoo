@@ -63,7 +63,9 @@ const answerSchema = new mongoose.Schema(
 
 // Virtual for vote count
 answerSchema.virtual('voteCount').get(function () {
-  return this.upvotes.length - this.downvotes.length;
+  const upvotesCount = this.upvotes ? this.upvotes.length : 0;
+  const downvotesCount = this.downvotes ? this.downvotes.length : 0;
+  return upvotesCount - downvotesCount;
 });
 
 const Answer = mongoose.model('Answer', answerSchema);

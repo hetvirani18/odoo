@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
+import toast from '../../utils/toast';
 import { FaSpinner, FaRobot } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { questionService, aiService } from '../../services/api';

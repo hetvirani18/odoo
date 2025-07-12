@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import toast from '../utils/toast';
 import { authService } from '../services/api';
 import styles from '../styles/Auth.module.css';
 
