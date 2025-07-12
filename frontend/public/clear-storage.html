@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear LocalStorage</title>
+</head>
+<body>
+    <h1>Clear LocalStorage</h1>
+    <button onclick="clearStorage()">Clear Auth Data</button>
+    <div id="result"></div>
+    
+    <script>
+        function clearStorage() {
+            localStorage.removeItem('stackit_token');
+            localStorage.removeItem('stackit_refresh_token');
+            document.getElementById('result').innerHTML = 'Auth data cleared!';
+            console.log('Cleared auth data');
+        }
+        
+        // Show current localStorage data
+        console.log('Current localStorage:');
+        console.log('Token:', localStorage.getItem('stackit_token'));
+        console.log('Refresh Token:', localStorage.getItem('stackit_refresh_token'));
+    </script>
+</body>
+</html>

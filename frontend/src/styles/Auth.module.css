@@ -1,0 +1,220 @@
+.authContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+  background-color: #f8f9f9;
+}
+
+.authForm {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.authForm h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #242729;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.authSubtitle {
+  font-size: 14px;
+  color: #6a737c;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.emailHighlight {
+  font-weight: bold;
+  color: #4a6cf7;
+  display: inline-block;
+  background-color: rgba(74, 108, 247, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.formGroup input {
+  padding: 10px 12px;
+  border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.formGroup input:focus {
+  border-color: #4a6cf7;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.1);
+}
+
+.fieldError {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.authButton {
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.authButton:hover {
+  background-color: #3a5be5;
+}
+
+.authButton:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.authLinks {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.authLink {
+  color: #4a6cf7;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.authLink:hover {
+  text-decoration: underline;
+}
+
+.textButton {
+  background: none;
+  border: none;
+  color: #4a6cf7;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.textButton:hover {
+  color: #3a5be5;
+}
+
+.textButton:disabled {
+  color: #a0aec0;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.successMessage {
+  background-color: #e6f6f0;
+  border: 1px solid #c3e6d4;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 20px;
+  color: #276749;
+}
+
+.errorMessage {
+  background-color: #fbe8e6;
+  border: 1px solid #f8aeaa;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 20px;
+  color: #c53030;
+}
+
+.otpContainer {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.otpInput {
+  width: 40px !important;
+  height: 40px;
+  border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.otpSeparator {
+  margin: 0 4px;
+  font-size: 16px;
+  line-height: 40px;
+  color: #6a737c;
+}
+
+.otpInputStyle {
+  width: 40px;
+  height: 40px;
+  margin: 0 4px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #e1e4e8;
+}
+
+/* OTP Container styles */
+.otpContainer {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 30px;
+}
+
+.otpSeparator {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  color: #6a737c;
+}
+
+.textButton {
+  background: none;
+  border: none;
+  color: #4a6cf7;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.textButton:disabled {
+  color: #6a737c;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.otpContainerStyle {
+  display: flex;
+  justify-content: center;
+}

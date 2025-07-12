@@ -1,0 +1,146 @@
+.ask-question-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.ask-question-header {
+  margin-bottom: 30px;
+}
+
+.ask-question-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #242729;
+  margin-bottom: 10px;
+}
+
+.ask-question-header p {
+  color: #6a737c;
+  line-height: 1.5;
+}
+
+.ask-question-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.form-section {
+  background-color: #fff;
+  border: 1px solid #e4e6e8;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.form-hint {
+  color: #6a737c;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.form-group input[type="text"] {
+  padding: 10px 12px;
+  border: 1px solid #e4e6e8;
+  border-radius: 3px;
+  font-size: 15px;
+}
+
+.form-group input[type="text"]:focus {
+  border-color: #0a95ff;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(10, 149, 255, 0.1);
+}
+
+.error-message {
+  color: #d1383d;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.ai-assist-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.ai-assist-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f3f9ff;
+  color: #0074cc;
+  border: 1px solid #b3d3ea;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ai-assist-btn:hover {
+  background-color: #e6f4ff;
+}
+
+.ai-assist-btn:disabled {
+  background-color: #f1f2f3;
+  color: #bbc0c4;
+  border-color: #e4e6e8;
+  cursor: not-allowed;
+}
+
+.ai-hint {
+  color: #6a737c;
+  font-size: 13px;
+  margin-left: 10px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.submit-question-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #0a95ff;
+  color: white;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-question-btn:hover {
+  background-color: #0074cc;
+}
+
+.submit-question-btn:disabled {
+  background-color: #95c4e9;
+  cursor: not-allowed;
+}

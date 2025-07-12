@@ -1,0 +1,192 @@
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  color: #242729;
+  background-color: #f8f9f9;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: 60px; /* Space for fixed navbar */
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+a {
+  color: #0074cc;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #0a95ff;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Utility classes */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mb-1 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-2 {
+  margin-bottom: 1rem;
+}
+
+.mb-3 {
+  margin-bottom: 1.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 2rem;
+}
+
+.mt-1 {
+  margin-top: 0.5rem;
+}
+
+.mt-2 {
+  margin-top: 1rem;
+}
+
+.mt-3 {
+  margin-top: 1.5rem;
+}
+
+.mt-4 {
+  margin-top: 2rem;
+}
+
+.p-1 {
+  padding: 0.5rem;
+}
+
+.p-2 {
+  padding: 1rem;
+}
+
+.p-3 {
+  padding: 1.5rem;
+}
+
+.p-4 {
+  padding: 2rem;
+}
+
+/* Form elements */
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Code blocks and syntax highlighting */
+pre, code {
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+}
+
+/* Markdown styling */
+.markdown {
+  line-height: 1.6;
+}
+
+.markdown h1, .markdown h2, .markdown h3, .markdown h4, .markdown h5, .markdown h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown p {
+  margin-bottom: 1em;
+}
+
+.markdown pre {
+  background-color: #f6f6f6;
+  padding: 12px;
+  border-radius: 3px;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.markdown code {
+  background-color: #f6f6f6;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.markdown blockquote {
+  border-left: 4px solid #e4e6e8;
+  padding-left: 15px;
+  color: #6a737c;
+  margin: 1em 0;
+}
+
+.markdown img {
+  max-width: 100%;
+}
+
+.markdown ul, .markdown ol {
+  margin-bottom: 1em;
+  padding-left: 2em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    padding-top: 60px;
+  }
+}
+
+/* Toast notifications */
+.Toastify__toast-container {
+  z-index: 9999;
+}
+
+.Toastify__toast {
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.Toastify__toast--success {
+  background-color: #48bb78;
+}
+
+.Toastify__toast--error {
+  background-color: #e53e3e;
+}
+
+.Toastify__toast--warning {
+  background-color: #ecc94b;
+}
+
+.Toastify__toast--info {
+  background-color: #4299e1;
+}

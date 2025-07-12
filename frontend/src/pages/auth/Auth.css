@@ -1,0 +1,178 @@
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+  background-color: #f8f9f9;
+}
+
+.auth-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.auth-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #242729;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.auth-subtitle {
+  font-size: 14px;
+  color: #6a737c;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #3c4146;
+}
+
+.form-group label svg {
+  margin-right: 8px;
+  color: #6a737c;
+}
+
+.form-group input {
+  padding: 10px 12px;
+  border: 1px solid #e4e6e8;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #0a95ff;
+  outline: none;
+}
+
+.error-message {
+  color: #d1383d;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.auth-button {
+  background-color: #0a95ff;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.auth-button:hover {
+  background-color: #0074cc;
+}
+
+.auth-button:disabled {
+  background-color: #95c4e9;
+  cursor: not-allowed;
+}
+
+.auth-links {
+  margin-top: 25px;
+  text-align: center;
+  font-size: 14px;
+  color: #6a737c;
+}
+
+.auth-links a {
+  color: #0a95ff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-links a:hover {
+  color: #0074cc;
+  text-decoration: underline;
+}
+
+.social-login {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.social-login-title {
+  text-align: center;
+  font-size: 14px;
+  color: #6a737c;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.social-login-title::before,
+.social-login-title::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background-color: #e4e6e8;
+}
+
+.social-login-title::before {
+  left: 0;
+}
+
+.social-login-title::after {
+  right: 0;
+}
+
+.social-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: 1px solid #e4e6e8;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.social-button svg {
+  margin-right: 10px;
+}
+
+.social-button.google {
+  color: #757575;
+}
+
+.social-button.github {
+  color: #24292e;
+}
+
+.social-button:hover {
+  background-color: #f8f9f9;
+}
