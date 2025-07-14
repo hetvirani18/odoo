@@ -2,6 +2,7 @@ const Answer = require('../models/Answer');
 const Question = require('../models/Question');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
+const { markdownToHtml } = require('../utils/markdown');
 
 // Create a new answer
 exports.createAnswer = async (req, res) => {
@@ -169,6 +170,19 @@ exports.getAnswers = async (req, res) => {
         .populate('author', 'username avatar reputation');
     }
 
+    // Convert markdown to HTML for each answer
+    answers = answers.map(answer => {
+      // Handle both mongoose documents and plain objects from aggregation
+      if (answer.toObject) {
+        const answerObj = answer.toObject();
+        answerObj.htmlContent = markdownToHtml(answerObj.content);
+        return answerObj;
+      } else {
+        answer.htmlContent = markdownToHtml(answer.content);
+        return answer;
+      }
+    });
+
     res.status(200).json({
       success: true,
       count: answers.length,
@@ -197,9 +211,13 @@ exports.getAnswer = async (req, res) => {
       });
     }
 
+    // Convert to object to add HTML content
+    const answerObj = answer.toObject();
+    answerObj.htmlContent = markdownToHtml(answerObj.content);
+
     res.status(200).json({
       success: true,
-      answer,
+      answer: answerObj,
     });
   } catch (error) {
     res.status(500).json({

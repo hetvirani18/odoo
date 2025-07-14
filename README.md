@@ -1,6 +1,6 @@
-# StackIt - A Minimal Q&A Forum Platform
+# StackIt - A Modern Q&A Platform
 
-StackIt is a collaborative question-and-answer platform inspired by Stack Overflow but with a simplified, user-friendly design. It allows users to ask questions, provide answers, and share knowledge within a community.
+StackIt is a collaborative question-and-answer platform inspired by Stack Overflow, designed for developers to ask questions, provide answers, and share knowledge. The platform features AI-assisted question generation powered by Google's Gemini model.
 
 ## Features
 
@@ -14,12 +14,11 @@ StackIt is a collaborative question-and-answer platform inspired by Stack Overfl
 - Bookmark questions for later reference
 - Follow tags and users
 - Real-time notifications
-- OpenAI integration for auto-generating question descriptions
+- AI-powered content generation (using Google's Gemini)
 
 ### User Roles
-- **Guest**: View all questions and answers
-- **User**: Register, log in, post questions/answers, vote, comment
-- **Admin**: Moderate content, manage tags, handle reports
+- **Guest**: View all questions 
+- **User**: Register, log in, post questions/answers, vote, comment, bookmark questions, follow tags/users, view answers
 
 ## Tech Stack
 
@@ -36,21 +35,21 @@ StackIt is a collaborative question-and-answer platform inspired by Stack Overfl
 - MongoDB with Mongoose
 - JWT for authentication
 - bcrypt for password hashing
-- OpenAI API for AI-assisted content generation
+- Google Generative AI (Gemini) for AI-assisted content generation
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js (v16 or higher)
 - MongoDB (local or Atlas)
-- OpenAI API key (for AI features)
+- Google Generative AI API key (for AI features)
 
 ### Installation
 
 1. Clone the repository:
 ```
-git clone https://github.com/yourusername/stackit.git
-cd stackit
+git clone https://github.com/hetvirani18/odoo.git
+cd odoo
 ```
 
 2. Install dependencies:
@@ -72,8 +71,20 @@ Create a `.env` file in the backend directory with the following variables:
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/stackit
 JWT_SECRET=your_jwt_secret_key
-OPENAI_API_KEY=your_openai_api_key
+JWT_EXPIRY=15m
+JWT_REFRESH_SECRET=your_refresh_token_secret
+JWT_REFRESH_EXPIRY=30d
+OPENAI_API_KEY=your_google_ai_api_key
 NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
+
+# Email configuration
+EMAIL_SERVICE=smtp
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+EMAIL_FROM=StackIt <your_email@gmail.com>
 ```
 
 4. Start the servers:
@@ -108,6 +119,9 @@ backend/
 #### Authentication
 - **LoginPage**: Allows users to log in with email and password
 - **RegisterPage**: Allows new users to create an account
+- **VerifyOTPPage**: Validates user registration with OTP sent via email
+- **ForgotPasswordPage**: Allows users to reset their password
+- **ResetPasswordPage**: Interface for setting a new password
 
 #### Question Management
 - **HomePage**: Displays a list of questions with sorting and filtering options
@@ -123,6 +137,10 @@ backend/
 - `POST /api/auth/register` - Register a new user
 - `POST /api/auth/login` - Login a user
 - `GET /api/auth/me` - Get current user profile
+- `POST /api/auth/verify-otp` - Verify registration OTP
+- `POST /api/auth/resend-otp` - Resend verification OTP
+- `POST /api/auth/forgot-password` - Request password reset
+- `POST /api/auth/reset-password` - Reset password with token
 
 ### Questions
 - `GET /api/questions` - Get all questions
@@ -133,8 +151,10 @@ backend/
 - `POST /api/questions/:id/vote` - Vote on a question
 - `POST /api/questions/:id/bookmark` - Bookmark a question
 
+
 ### Answers
-- `GET /api/answers/question/:questionId` - Get all answers for a question
+> **Note:** Only authenticated users can view answers. Guests will not see answers in the UI or via the API.
+- `GET /api/answers/question/:questionId` - Get all answers for a question (auth required)
 - `POST /api/answers/question/:questionId` - Create a new answer
 - `PUT /api/answers/:id` - Update an answer
 - `DELETE /api/answers/:id` - Delete an answer
@@ -165,8 +185,5 @@ backend/
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -2,6 +2,7 @@ const Question = require('../models/Question');
 const Tag = require('../models/Tag');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
+const { markdownToHtml } = require('../utils/markdown');
 
 // Create a new question
 exports.createQuestion = async (req, res) => {
@@ -299,6 +300,17 @@ exports.getQuestion = async (req, res) => {
 
     // Convert to POJO to add custom fields
     const questionObj = question.toObject();
+    
+    // Convert markdown to HTML
+    questionObj.htmlDescription = markdownToHtml(questionObj.description);
+    
+    // Also convert answers if they exist
+    if (questionObj.answers && questionObj.answers.length > 0) {
+      questionObj.answers = questionObj.answers.map(answer => {
+        answer.htmlContent = markdownToHtml(answer.content);
+        return answer;
+      });
+    }
 
     // Add isUpvoted and isDownvoted flags if user is logged in
     if (req.user) {

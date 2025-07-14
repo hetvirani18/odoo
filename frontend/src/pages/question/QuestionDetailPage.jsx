@@ -388,7 +388,7 @@ const QuestionDetailPage = () => {
         <div className="question-content">
           <div 
             className="content-body" 
-            dangerouslySetInnerHTML={{ __html: question.description }}
+            dangerouslySetInnerHTML={{ __html: question.htmlDescription || question.description }}
           />
           
           <div className="tags-container">
@@ -489,7 +489,7 @@ const QuestionDetailPage = () => {
                   
                   <div 
                     className="content-body" 
-                    dangerouslySetInnerHTML={{ __html: answer.content }}
+                    dangerouslySetInnerHTML={{ __html: answer.htmlContent || answer.content }}
                   />
                   
                   <div className="answer-actions">

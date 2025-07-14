@@ -26,43 +26,39 @@ exports.generateDescription = async (req, res) => {
       });
     }
 
-//     const fallbackDescription = `This question is about **${title}**.
+    const fallbackDescription = `This question is about **${title}**.
 
-// Please describe your issue in detail, including:
-// - What you’re trying to achieve
-// - What you've tried so far
-// - What results you're getting
-// - Any specific challenges or errors
-// - Relevant code snippets or examples
+Please describe your issue in detail, including:
+- What you're trying to achieve
+- What you've tried so far
+- What results you're getting
+- Any specific challenges or errors
+- Relevant code snippets or examples
 
-// A clear, detailed question will help others provide better answers.`;
+A clear, detailed question will help others provide better answers.`;
 
-//     if (!genAI) {
-//       return res.status(200).json({
-//         success: true,
-//         description: fallbackDescription,
-//       });
-//     }
+    if (!genAI) {
+      return res.status(200).json({
+        success: true,
+        description: fallbackDescription,
+      });
+    }
 
-  const prompt = `
-  You are an AI assistant on a developer Q&A site like Stack Overflow.
+    const prompt = `
+    You are an AI assistant on a developer Q&A site like Stack Overflow.
 
-  A developer asked: **"${title}"**
+    A developer asked: **"${title}"**
 
-  Write a full markdown-formatted description from the person asking. The description should:
-  - Be 2–3 paragraphs
-  - Focus **only** on CSS Grid
-  - Mention they are trying to build responsive layouts
-  - Describe specific challenges like \`grid-template-columns\`, nesting, alignment, or media queries
-  - Mention they've tried tutorials or docs, but are confused about some concepts
-  - Ask for best practices and real-world layout examples
-  - Sound like a real person explaining what they’ve done and what they’re struggling with
-  - Use markdown formatting with at least one **heading**, **bold text**, and maybe bullet points
+    Write a full markdown-formatted description from the person asking. The description should:
+    - Be 2–3 paragraphs
+    - Explain the technical question or problem in detail
+    - Sound like a real person explaining what they've tried and what they're struggling with
+    - Use markdown formatting with at least one heading, bold text, and maybe bullet points
+    - Include relevant technical details based on the question topic
+    - Ask for specific help or guidance
 
-  Avoid talking about Bootstrap or other frameworks.
-
-  Generate only the markdown description as if the developer wrote it. Don't mention the AI or rephrase the question.
-  `;
+    Generate only the markdown description as if the developer wrote it.
+    `;
 
     try {
       console.log('⏳ Generating content using Gemini...');
