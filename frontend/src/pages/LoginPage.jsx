@@ -19,17 +19,31 @@ const LoginPage = () => {
       console.log('Login attempt with:', data.email);
       const response = await authService.login(data);
       
-      console.log('Login successful, processing token');
-      const loginSuccess = await login(response.data);
-      
-      if (loginSuccess) {
-        // Show success toast
-        toast.success('Login successful!');
+      // Check if login requires OTP verification
+      if (response.data.requiresVerification) {
+        toast.info('Please verify your email. A new OTP has been sent to your email address.');
         
-        // Small delay to allow toast to show before navigation
-        setTimeout(() => {
-          navigate('/');
-        }, 100);
+        // Navigate to OTP verification page
+        navigate('/verify-otp', { 
+          state: { 
+            userId: response.data.userId, 
+            email: data.email 
+          }
+        });
+      } else {
+        // Normal login flow
+        console.log('Login successful, processing token');
+        const loginSuccess = await login(response.data);
+        
+        if (loginSuccess) {
+          // Show success toast
+          toast.success('Login successful!');
+          
+          // Small delay to allow toast to show before navigation
+          setTimeout(() => {
+            navigate('/');
+          }, 100);
+        }
       }
     } catch (error) {
       console.error('Login error:', error);

@@ -1,101 +1,93 @@
-const { OpenAI } = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Initialize OpenAI API (only if valid key is provided)
-let openai = null;
-if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.startsWith('sk-')) {
-  openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-  });
+// Initialize Google Generative AI
+let genAI = null;
+if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.startsWith('AIzaSy')) {
+  genAI = new GoogleGenerativeAI(process.env.OPENAI_API_KEY);
+  console.log('✅ Google Generative AI initialized');
+} else {
+  console.warn('⚠️ Google Generative AI not initialized - invalid or missing API key');
 }
 
-// Controller for generating question descriptions with AI
+// Controller to generate AI-powered question descriptions
 exports.generateDescription = async (req, res) => {
-  try {
-    const { title, tags } = req.body;
+  console.log('\n=== AI Description Generation ===');
 
-    if (!title || !tags || tags.length === 0) {
+  try {
+    const { title } = req.body;
+
+    if (!title || title.trim() === '') {
       return res.status(400).json({
         success: false,
-        message: 'Please provide a title and at least one tag',
+        message: 'Please provide a question title',
       });
     }
 
-    // Check if OpenAI is available
-    if (!openai) {
-      // Fallback: Generate a simple template description
-      const tagNames = Array.isArray(tags) 
-        ? tags.map(tag => typeof tag === 'object' ? tag.name : tag).join(', ') 
-        : tags;
+//     const fallbackDescription = `This question is about **${title}**.
 
-      const fallbackDescription = `This question is about **${title}** and relates to the following technologies: ${tagNames}.
+// Please describe your issue in detail, including:
+// - What you’re trying to achieve
+// - What you've tried so far
+// - What results you're getting
+// - Any specific challenges or errors
+// - Relevant code snippets or examples
 
-Please provide a detailed description of your problem, including:
-- What you've tried so far
-- The expected behavior
-- The actual behavior you're experiencing
-- Any error messages you've encountered
-- Relevant code snippets (if applicable)
+// A clear, detailed question will help others provide better answers.`;
 
-The more details you provide, the better the community can help you solve your problem.`;
+//     if (!genAI) {
+//       return res.status(200).json({
+//         success: true,
+//         description: fallbackDescription,
+//       });
+//     }
 
+  const prompt = `
+  You are an AI assistant on a developer Q&A site like Stack Overflow.
+
+  A developer asked: **"${title}"**
+
+  Write a full markdown-formatted description from the person asking. The description should:
+  - Be 2–3 paragraphs
+  - Focus **only** on CSS Grid
+  - Mention they are trying to build responsive layouts
+  - Describe specific challenges like \`grid-template-columns\`, nesting, alignment, or media queries
+  - Mention they've tried tutorials or docs, but are confused about some concepts
+  - Ask for best practices and real-world layout examples
+  - Sound like a real person explaining what they’ve done and what they’re struggling with
+  - Use markdown formatting with at least one **heading**, **bold text**, and maybe bullet points
+
+  Avoid talking about Bootstrap or other frameworks.
+
+  Generate only the markdown description as if the developer wrote it. Don't mention the AI or rephrase the question.
+  `;
+
+    try {
+      console.log('⏳ Generating content using Gemini...');
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const generatedDescription = response.text();
+
+      console.log('✅ AI Description Generated');
+      return res.status(200).json({
+        success: true,
+        description: generatedDescription,
+      });
+    } catch (aiError) {
+      console.error('❌ Gemini AI Error:', aiError.message);
       return res.status(200).json({
         success: true,
         description: fallbackDescription,
       });
     }
-
-    // Format tags for the prompt
-    const tagNames = Array.isArray(tags) 
-      ? tags.map(tag => typeof tag === 'object' ? tag.name : tag).join(', ') 
-      : tags;
-
-    // Create the system prompt
-    const systemPrompt = 
-      "You are a helpful assistant. Write a clear, 2-paragraph, richly formatted description for a programming Q&A site. Use the title and tags as context.";
-
-    // Generate description
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4", // or your chosen model
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: `Title: ${title}\nTags: ${tagNames}\nGenerate a detailed question description with formatting.` }
-      ],
-      max_tokens: 500,
-      temperature: 0.7,
-    });
-
-    // Extract the response
-    const generatedDescription = completion.choices[0].message.content;
-
-    res.status(200).json({
-      success: true,
-      description: generatedDescription,
-    });
   } catch (error) {
-    console.error('OpenAI Error:', error);
-    
-    // Fallback in case of API error
-    const { title, tags } = req.body;
-    const tagNames = Array.isArray(tags) 
-      ? tags.map(tag => typeof tag === 'object' ? tag.name : tag).join(', ') 
-      : tags;
-
-    const fallbackDescription = `This question is about **${title}** and relates to the following technologies: ${tagNames}.
-
-Please provide a detailed description of your problem, including:
-- What you've tried so far
-- The expected behavior
-- The actual behavior you're experiencing
-- Any error messages you've encountered
-- Relevant code snippets (if applicable)
-
-The more details you provide, the better the community can help you solve your problem.`;
-
-    res.status(200).json({
-      success: true,
+    console.error('❌ Controller Error:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to generate description',
       description: fallbackDescription,
     });
   }

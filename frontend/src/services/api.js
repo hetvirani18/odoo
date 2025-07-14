@@ -73,6 +73,8 @@ api.interceptors.request.use(
 export const authService = {
   register: (userData) => api.post('/auth/register', userData),
   login: (credentials) => api.post('/auth/login', credentials),
+  verifyOTP: (otpData) => api.post('/auth/verify-otp', otpData),
+  resendOTP: (userData) => api.post('/auth/resend-otp', userData),
   refreshToken: (refreshToken) => api.post('/auth/refresh-token', { refreshToken }),
   getCurrentUser: () => api.get('/auth/me'),
   logout: (refreshToken) => api.post('/auth/logout', { refreshToken }),

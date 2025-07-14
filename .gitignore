@@ -2,3 +2,16 @@
 node_modules/
 backend/node_modules/
 frontend/node_modules/
+
+# Build artifacts
+backend/dist/
+frontend/dist/
+backend/build/
+frontend/build/
+
+# Logs
+*.log
+
+# Environment files
+backend/.env
+frontend/.env

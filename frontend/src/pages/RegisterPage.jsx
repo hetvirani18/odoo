@@ -22,12 +22,24 @@ const RegisterPage = () => {
       const response = await authService.register(data);
       console.log('Registration successful, response:', response.data);
       
-      // Auto-login after registration
-      await login(response.data);
-      toast.success('Registration successful! Welcome to StackIt!');
-      
-      // Navigate to home page
-      navigate('/');
+      // Check if registration requires OTP verification
+      if (response.data.userId) {
+        toast.success('Registration successful! Please check your email for the OTP verification code.');
+        
+        // Navigate to OTP verification page with user data
+        navigate('/verify-otp', { 
+          state: { 
+            userId: response.data.userId, 
+            email: data.email,
+            username: data.username
+          }
+        });
+      } else {
+        // Fallback: old registration flow without OTP
+        await login(response.data);
+        toast.success('Registration successful! Welcome to StackIt!');
+        navigate('/');
+      }
     } catch (error) {
       console.error('Registration error:', error);
       console.error('Error response:', error.response);

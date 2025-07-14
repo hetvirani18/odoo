@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { sendOTPEmail } = require('../services/emailService');
 
 // Register a new user
 exports.register = async (req, res) => {
@@ -36,38 +37,42 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Create new user
+    // Create new user (unverified)
     const user = await User.create({
       username,
       email,
       password,
       name: name || '',
+      isVerified: false,
     });
 
     console.log('User created successfully:', user._id);
 
-    // Generate tokens
-    const token = user.generateToken();
-    const refreshToken = user.generateRefreshToken();
-    
-    // Save user with refresh token
+    // Generate OTP
+    const otp = user.generateOTP();
     await user.save();
+
+    // Send OTP email
+    try {
+      const emailSent = await sendOTPEmail(email, otp, username);
+      if (!emailSent) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to send verification email',
+        });
+      }
+    } catch (emailError) {
+      console.error('Email error:', emailError);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send verification email',
+      });
+    }
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful',
-      token,
-      refreshToken,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        avatar: user.avatar,
-        bio: user.bio,
-        reputation: user.reputation,
-      },
+      message: 'Registration successful. Please verify your email with the OTP sent to your email address.',
+      userId: user._id,
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -113,6 +118,37 @@ exports.login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid password',
+      });
+    }
+
+    // Check if user is verified
+    if (!user.isVerified) {
+      // Generate new OTP for unverified user
+      const otp = user.generateOTP();
+      await user.save();
+
+      // Send OTP email
+      try {
+        const emailSent = await sendOTPEmail(user.email, otp, user.username);
+        if (!emailSent) {
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to send verification email',
+          });
+        }
+      } catch (emailError) {
+        console.error('Email error:', emailError);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to send verification email',
+        });
+      }
+
+      return res.status(401).json({
+        success: false,
+        message: 'Please verify your email. A new OTP has been sent to your email address.',
+        requiresVerification: true,
+        userId: user._id,
       });
     }
 
@@ -282,6 +318,131 @@ exports.testUsers = async (req, res) => {
     });
   } catch (error) {
     console.error('Test users error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Verify OTP
+exports.verifyOTP = async (req, res) => {
+  try {
+    const { userId, otp } = req.body;
+
+    if (!userId || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID and OTP are required',
+      });
+    }
+
+    // Find user
+    const user = await User.findById(userId).select('+otp +otpExpires');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // Verify OTP
+    if (!user.verifyOTP(otp)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP',
+      });
+    }
+
+    // Mark user as verified and clear OTP
+    user.isVerified = true;
+    user.clearOTP();
+
+    // Generate tokens
+    const token = user.generateToken();
+    const refreshToken = user.generateRefreshToken();
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Email verified successfully',
+      token,
+      refreshToken,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        bio: user.bio,
+        reputation: user.reputation,
+        isVerified: user.isVerified,
+      },
+    });
+  } catch (error) {
+    console.error('OTP verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Resend OTP
+exports.resendOTP = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID is required',
+      });
+    }
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'User is already verified',
+      });
+    }
+
+    // Generate new OTP
+    const otp = user.generateOTP();
+    await user.save();
+
+    // Send OTP email
+    try {
+      const emailSent = await sendOTPEmail(user.email, otp, user.username);
+      if (!emailSent) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to send verification email',
+        });
+      }
+    } catch (emailError) {
+      console.error('Email error:', emailError);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send verification email',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent successfully',
+    });
+  } catch (error) {
+    console.error('Resend OTP error:', error);
     res.status(500).json({
       success: false,
       message: error.message,

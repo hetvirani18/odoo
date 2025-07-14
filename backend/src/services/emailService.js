@@ -17,10 +17,16 @@ const createTransporter = () => {
 // Send OTP email
 exports.sendOTPEmail = async (email, otp, username) => {
   try {
+    console.log('Attempting to send OTP email to:', email);
+    console.log('OTP:', otp);
+    console.log('Username:', username);
+    
     const transporter = createTransporter();
     
     // Verify transporter connection
+    console.log('Verifying email transporter connection...');
     await transporter.verify();
+    console.log('Email transporter verified successfully');
     
     const message = {
       from: process.env.EMAIL_FROM || `StackIt <${process.env.EMAIL_USER}>`,
@@ -31,7 +37,7 @@ exports.sendOTPEmail = async (email, otp, username) => {
           <h2 style="color: #333; text-align: center;">Welcome to StackIt!</h2>
           <p>Hello ${username},</p>
           <p>Thank you for registering with StackIt. To complete your registration, please verify your email using the following OTP:</p>
-          <div style="background-color: #f5f5f5; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; border-radius: 4px; margin: 20px 0;">
+          <div style="background-color: #f5f5f5; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; border-radius: 4px; margin: 20px 0; color: #000000;">
             ${otp}
           </div>
           <p>This OTP is valid for 10 minutes. If you didn't request this verification, please ignore this email.</p>
@@ -40,11 +46,16 @@ exports.sendOTPEmail = async (email, otp, username) => {
       `,
     };
 
+    console.log('Sending email...');
     const info = await transporter.sendMail(message);
-    console.log('Email sent:', info.messageId);
+    console.log('Email sent successfully:', info.messageId);
     return true;
   } catch (error) {
     console.error('Email sending error:', error);
+    console.error('Error details:', error.message);
+    if (error.response) {
+      console.error('SMTP response:', error.response);
+    }
     return false;
   }
 };

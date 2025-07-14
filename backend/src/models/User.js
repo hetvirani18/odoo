@@ -82,6 +82,19 @@ const userSchema = new mongoose.Schema(
         ref: 'Question',
       },
     ],
+    // OTP verification fields
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    otp: {
+      type: String,
+      select: false,
+    },
+    otpExpires: {
+      type: Date,
+      select: false,
+    },
   },
   {
     timestamps: true,
@@ -144,6 +157,38 @@ userSchema.methods.generateRefreshToken = function () {
 userSchema.methods.cleanupRefreshTokens = function () {
   const now = new Date();
   this.refreshTokens = this.refreshTokens.filter((t) => t.expiresAt > now);
+};
+
+// Remove specific refresh token
+userSchema.methods.removeRefreshToken = function (token) {
+  this.refreshTokens = this.refreshTokens.filter((t) => t.token !== token);
+};
+
+// Generate OTP
+userSchema.methods.generateOTP = function () {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  this.otp = otp;
+  this.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  return otp;
+};
+
+// Verify OTP
+userSchema.methods.verifyOTP = function (enteredOTP) {
+  if (!this.otp || !this.otpExpires) {
+    return false;
+  }
+  
+  if (this.otpExpires < new Date()) {
+    return false; // OTP expired
+  }
+  
+  return this.otp === enteredOTP;
+};
+
+// Clear OTP
+userSchema.methods.clearOTP = function () {
+  this.otp = undefined;
+  this.otpExpires = undefined;
 };
 
 const User = mongoose.model('User', userSchema);
